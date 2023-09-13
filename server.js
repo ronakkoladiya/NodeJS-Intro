@@ -22,6 +22,10 @@ app.get("/user", async (request, response) => {
     response.send(user);
 });
 
+app.post("/", async (request, response) => {
+    response.send("Server is running successfully.");
+});
+
 app.post("/user", async (request, response) => {
     const post = new Post();
     post.name = request.body.name;
