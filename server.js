@@ -17,13 +17,13 @@ app.use(bodyParser.json()).use(morgan());
 
 const Post = mongoose.model("post");
 
+app.get("/", async (request, response) => {
+    response.send("Server is running successfully.");
+});
+
 app.get("/user", async (request, response) => {
     const user = await Post.find({});
     response.send(user);
-});
-
-app.post("/", async (request, response) => {
-    response.send("Server is running successfully.");
 });
 
 app.post("/user", async (request, response) => {
