@@ -9,9 +9,9 @@ const User = mongoose.model("users");
 //signUp user
 app.post("/signUp", async (request, response) => {
 
-    const { name, email, password, confirmPassword } = request.body;
+    const {name, email, password, confirmPassword} = request.body;
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({email});
 
     if (existingUser) {
         return response.status(400).send("An account with this email already exists.");
@@ -34,9 +34,9 @@ app.post("/signUp", async (request, response) => {
 
 //logIn user
 app.post("/logIn", async (request, response) => {
-    const { email, password } = request.body;
+    const {email, password} = request.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({email});
 
     if (!user) {
         return response.status(404).send("User not found.");
@@ -46,27 +46,53 @@ app.post("/logIn", async (request, response) => {
         return response.status(401).send("Incorrect password.");
     }
 
-    const token = jwt.sign({ userId: user._id }, secretKey);
+    const token = jwt.sign({userId: user._id}, secretKey);
 
     response.send({token});
 });
 
 //get all the users
 app.get("/getAllUsers", async (request, response) => {
-    const users = await User.find({}, {password: 0, confirmPassword: 0});
+    const users = await User.find({}, {confirmPassword: 0});
     response.send(users);
 });
 
 //get user by id
 app.get("/getUserById", async (request, response) => {
     const _id = request.query._id;
-    const user = await User.findOne({_id: _id});
+    const user = await User.findOne({_id: _id}, {confirmPassword: 0});
+
+    if (!user) {
+        return response.status(404).send("User not found.");
+    }
+
     response.send(user);
 });
 
 //update user
-app.put("/updateUser", async (request, response) => {
+app.put("/updateUserById", async (request, response) => {
     const _id = request.query._id;
+    const {name, email, password, confirmPassword} = request.body;
+
+    const user = await User.findById(_id);
+
+    if (!user) {
+        return response.status(404).json({ message: 'User not found' });
+    }
+
+    if (
+        name === user.name &&
+        email === user.email &&
+        password === user.password &&
+        confirmPassword === user.confirmPassword
+    ) {
+        return response.status(400).json({ message: 'No changes detected' });
+    }
+
+    if (password !== confirmPassword) {
+        return response.status(400).send("confirmPassword and password has to be same.");
+    }
+
     await User.findByIdAndUpdate({_id: _id}, request.body, {
         new: true,
         runValidators: true
