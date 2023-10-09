@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const secretKey = "bvm-node-js-intro";
+const secretKey = "node-js-intro";
 
 const User = mongoose.model("users");
 
@@ -11,14 +11,24 @@ app.post("/signUp", async (request, response) => {
 
     const {name, email, password, confirmPassword} = request.body;
 
-    const existingUser = await User.findOne({email});
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!emailRegex.test(email)) {
+        return response.status(400).send("Invalid email address.");
+    }
 
-    if (existingUser) {
-        return response.status(400).send("An account with this email already exists.");
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    if (!passwordRegex.test(password)) {
+        return response.status(400).send("Password must contain at least 6 characters, including at least one letter, one number, and one special character.");
     }
 
     if (password !== confirmPassword) {
         return response.status(400).send("confirmPassword and password has to be same.");
+    }
+
+    const existingUser = await User.findOne({email});
+
+    if (existingUser) {
+        return response.status(400).send("An account with this email already exists.");
     }
 
     const post = new User({
@@ -36,14 +46,24 @@ app.post("/signUp", async (request, response) => {
 app.post("/logIn", async (request, response) => {
     const {email, password} = request.body;
 
-    const user = await User.findOne({email});
-
-    if (!user) {
-        return response.status(404).send("User not found.");
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!emailRegex.test(email)) {
+        return response.status(400).send("Invalid email address.");
     }
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    if (!passwordRegex.test(password)) {
+        return response.status(400).send("Password must contain at least 6 characters, including at least one letter, one number, and one special character.");
+    }
+
+    const user = await User.findOne({email});
 
     if (user.password !== password) {
         return response.status(401).send("Incorrect password.");
+    }
+
+    if (!user) {
+        return response.status(404).send("User not found.");
     }
 
     const token = jwt.sign({userId: user._id}, secretKey);
@@ -74,23 +94,32 @@ app.put("/updateUserById", async (request, response) => {
     const _id = request.query._id;
     const {name, email, password, confirmPassword} = request.body;
 
-    const user = await User.findById(_id);
-
-    if (!user) {
-        return response.status(404).json({ message: 'User not found' });
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!emailRegex.test(email)) {
+        return response.status(400).send("Invalid email address.");
     }
 
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    if (!passwordRegex.test(password)) {
+        return response.status(400).send("Password must contain at least 6 characters, including at least one letter, one number, and one special character.");
+    }
+
+    if (password !== confirmPassword) {
+        return response.status(400).send("confirmPassword and password has to be same.");
+    }
+
+    const user = await User.findById(_id);
     if (
         name === user.name &&
         email === user.email &&
         password === user.password &&
         confirmPassword === user.confirmPassword
     ) {
-        return response.status(400).json({ message: 'No changes detected' });
+        return response.status(400).json({message: 'No changes detected'});
     }
 
-    if (password !== confirmPassword) {
-        return response.status(400).send("confirmPassword and password has to be same.");
+    if (!user) {
+        return response.status(404).json({message: 'User not found'});
     }
 
     await User.findByIdAndUpdate({_id: _id}, request.body, {
