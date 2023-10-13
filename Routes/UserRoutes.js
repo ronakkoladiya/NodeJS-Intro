@@ -35,7 +35,8 @@ app.post("/signUp", async (request, response) => {
         name,
         email,
         password,
-        confirmPassword
+        confirmPassword,
+        token: null
     });
 
     await post.save();
@@ -68,7 +69,22 @@ app.post("/logIn", async (request, response) => {
 
     const token = jwt.sign({userId: user._id}, secretKey);
 
+    user.token = token;
+    await user.save();
+
     response.send({token});
+});
+
+//Refresh Api
+app.post("/refreshApi", async (request, response) => {
+    const token = request.query.token;
+    const user = await User.findOne({token: token}, {confirmPassword: 0});
+
+    if (!user) {
+        return response.status(404).json({message: "Invalid token"});
+    }
+
+    response.send(user);
 });
 
 //get all the users
@@ -134,6 +150,22 @@ app.delete("/deleteUser", async (request, response) => {
     const _id = request.query._id;
     await User.findByIdAndDelete({_id: _id}, request.body);
     response.send("User deleted successfully.");
+});
+
+//logout user
+app.post("/logOut", async (request, response) => {
+    const token = request.query.token;
+    const user = await User.findOne({ token });
+
+    if (!user) {
+        return response.status(404).send("Token not found.");
+    }
+
+    user.token = null;
+    await user.save();
+
+    response.send("Logout successful.");
+
 });
 
 module.exports = app;

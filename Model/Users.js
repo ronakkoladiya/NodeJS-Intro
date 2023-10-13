@@ -16,6 +16,9 @@ const post_schema = new mongoose.Schema({
     confirmPassword: {
         type: String,
         required: "confirmPassword is Required!"
+    },
+    token: {
+        type: String
     }
 });
 
