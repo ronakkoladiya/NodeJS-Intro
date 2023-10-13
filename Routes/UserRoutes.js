@@ -89,14 +89,14 @@ app.post("/refreshApi", async (request, response) => {
 
 //get all the users
 app.get("/getAllUsers", async (request, response) => {
-    const users = await User.find({}, {confirmPassword: 0});
+    const users = await User.find({}, {confirmPassword: 0, token: 0});
     response.send(users);
 });
 
 //get user by id
 app.get("/getUserById", async (request, response) => {
     const _id = request.query._id;
-    const user = await User.findOne({_id: _id}, {confirmPassword: 0});
+    const user = await User.findOne({_id: _id}, {confirmPassword: 0, token: 0});
 
     if (!user) {
         return response.status(404).send("User not found.");
