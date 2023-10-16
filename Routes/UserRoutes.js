@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
+const nodemailer = require('nodemailer');
 const jwt = require("jsonwebtoken");
 const secretKey = "node-js-intro";
 
@@ -165,7 +166,75 @@ app.post("/logOut", async (request, response) => {
     await user.save();
 
     response.send("Logout successful.");
+});
 
+// Reset Password Email
+app.post('/resetPasswordEmail', async (request, response) => {
+    const email = request.query.email;
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+        return response.status(404).send("User not found.");
+    }
+
+    const transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+            user: 'ronakkoladiya.bvminfotech@gmail.com',
+            pass: 'inbn nrng rtuj ddhl',
+        },
+    });
+
+    const mailOptions = {
+        from: 'ronakkoladiya.bvminfotech@gmail.com',
+        to: email,
+        subject: 'Password Reset Request',
+        text: `To reset your password, click on the following link: http://localhost:8000/updatePassword?_id=${user._id}`,
+    };
+
+    await transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error(error);
+            response.status(500).json({ message: 'Email sending failed' });
+        } else {
+            console.log('Email sent: ' + info.response);
+            response.status(200).json({ message: 'Password reset email sent successfully' });
+        }
+    });
+
+});
+
+//updatePassword
+app.post('/updatePassword', async (request, response) => {
+    const _id = request.query._id;
+    const {password, confirmPassword} = request.body;
+    const user = await User.findById(_id);
+
+    if (!user) {
+        return response.status(404).send("User not found.");
+    }
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    if (!passwordRegex.test(password)) {
+        return response.status(400).send("Password must contain at least 6 characters, including at least one letter, one number, and one special character.");
+    }
+
+    if (password !== confirmPassword) {
+        return response.status(400).send("ConfirmPassword and password has to be same.");
+    }
+
+    if (
+        password === user.password &&
+        confirmPassword === user.confirmPassword
+    ) {
+        return response.status(400).json({message: 'No changes detected'});
+    }
+
+    user.password = password;
+    user.confirmPassword = confirmPassword;
+    await user.save();
+
+    return response.status(200).send("Password updated successfully.");
 });
 
 module.exports = app;
