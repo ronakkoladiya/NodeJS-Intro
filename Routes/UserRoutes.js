@@ -186,7 +186,7 @@ app.post('/resetPasswordEmail', async (request, response) => {
     });
 
     const mailOptions = {
-        from: 'ronakkoladiya.bvminfotech@gmail.com',
+        from: process.env.MYEMAIL,
         to: email,
         subject: 'Password Reset Request',
         text: `To reset your password, click on the following link: http://localhost:8000/updatePassword?_id=${user._id}`,
