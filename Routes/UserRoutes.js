@@ -180,8 +180,8 @@ app.post('/resetPasswordEmail', async (request, response) => {
     const transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {
-            user: 'ronakkoladiya.bvminfotech@gmail.com',
-            pass: 'inbn nrng rtuj ddhl',
+            user: process.env.MYEMAIL,
+            pass: process.env.MYPASS,
         },
     });
 
