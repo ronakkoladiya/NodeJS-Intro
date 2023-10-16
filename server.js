@@ -1,7 +1,8 @@
 const port = 8000;
 const express = require("express");
-require("express-async-errors");
 const app = express();
+require("dotenv").config();
+require("express-async-errors");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 
