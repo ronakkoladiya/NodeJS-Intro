@@ -4,8 +4,70 @@ const mongoose = require("mongoose");
 const nodemailer = require('nodemailer');
 const jwt = require("jsonwebtoken");
 const secretKey = "node-js-intro";
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 const User = mongoose.model("users");
+
+const googleClientId = "515307219013-s5ta708pch39cp2an14bn99jpsvu54vf.apps.googleusercontent.com";
+const googleClientSecret = "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";
+const googleCallbackURL = "http://localhost:8000/";
+
+app.use(require("express-session")({
+    secret: "Ronak's 1st Node",
+    resave: false,
+    saveUninitialized: true,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+    passport.use(
+    new GoogleStrategy(
+        {
+            clientID: googleClientId,
+            clientSecret: googleClientSecret,
+            callbackURL: googleCallbackURL,
+        },
+        (token, tokenSecret, profile, done) => {
+            User.findOne({email: profile.emails[0].value}, (err, user) => {
+                if (err) {
+                    return done(err, false);
+                }
+
+                if (user) {
+                    console.log(user);
+                    return done(null, user);
+                } else {
+                    const newUser = new User({
+                        name: profile.displayName,
+                        email: profile.emails[0].value,
+                    });
+                    console.log(user);
+
+                    newUser.save((err, savedUser) => {
+                        if (err) {
+                            return done(err, false);
+                        }
+
+                        return done(null, savedUser);
+                    });
+                }
+            });
+        }
+    )
+);
+
+passport.serializeUser((user, done) => {
+    done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+    done(null, user);
+});
+
+app.get("/googleLogIn", passport.authenticate("google", {scope: ["profile", "email"]}));
+
 
 //signUp user
 app.post("/signUp", async (request, response) => {
@@ -156,7 +218,7 @@ app.delete("/deleteUser", async (request, response) => {
 //logout user
 app.post("/logOut", async (request, response) => {
     const token = request.query.token;
-    const user = await User.findOne({ token });
+    const user = await User.findOne({token});
 
     if (!user) {
         return response.status(404).send("Token not found.");
@@ -171,7 +233,7 @@ app.post("/logOut", async (request, response) => {
 // Reset Password Email
 app.post('/resetPasswordEmail', async (request, response) => {
     const email = request.query.email;
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({email: email});
 
     if (!user) {
         return response.status(404).send("User not found.");
@@ -195,10 +257,10 @@ app.post('/resetPasswordEmail', async (request, response) => {
     await transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.error(error);
-            response.status(500).json({ message: 'Email sending failed' });
+            response.status(500).json({message: 'Email sending failed'});
         } else {
             console.log('Email sent: ' + info.response);
-            response.status(200).json({ message: 'Password reset email sent successfully' });
+            response.status(200).json({message: 'Password reset email sent successfully'});
         }
     });
 
