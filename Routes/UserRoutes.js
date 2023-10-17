@@ -94,7 +94,7 @@ app.post("/signUp", async (request, response) => {
         return response.status(400).send("An account with this email already exists.");
     }
 
-    const post = new User({
+    const newUser = new User({
         name,
         email,
         password,
@@ -102,7 +102,7 @@ app.post("/signUp", async (request, response) => {
         token: null
     });
 
-    await post.save();
+    await newUser.save();
     response.send("SignUp successful.");
 });
 
