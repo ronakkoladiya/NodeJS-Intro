@@ -77,7 +77,7 @@ app.post("/logIn", async (request, response) => {
 });
 
 //Refresh Api
-app.post("/refreshApi", async (request, response) => {
+app.get("/refreshApi", async (request, response) => {
     const token = request.query.token;
     const user = await User.findOne({token: token}, {confirmPassword: 0});
 
