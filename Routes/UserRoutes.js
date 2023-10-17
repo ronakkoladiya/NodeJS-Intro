@@ -22,7 +22,7 @@ app.use(require("express-session")({
 app.use(passport.initialize());
 app.use(passport.session());
 
-    passport.use(
+passport.use(
     new GoogleStrategy(
         {
             clientID: googleClientId,
