@@ -9,10 +9,6 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 const User = mongoose.model("users");
 
-const googleClientId = "515307219013-s5ta708pch39cp2an14bn99jpsvu54vf.apps.googleusercontent.com";
-const googleClientSecret = "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";
-const googleCallbackURL = "http://localhost:8000/";
-
 app.use(require("express-session")({
     secret: "Ronak's 1st Node",
     resave: false,
@@ -25,9 +21,9 @@ app.use(passport.session());
 passport.use(
     new GoogleStrategy(
         {
-            clientID: googleClientId,
-            clientSecret: googleClientSecret,
-            callbackURL: googleCallbackURL,
+            clientID: process.env.GOOGLECLIENTID,
+            clientSecret: process.env.GOOGLECLIENTSECRET,
+            callbackURL: process.env.GOOGLECALLBACKURL,
         },
         (token, tokenSecret, profile, done) => {
             console.log("Google Profile:", profile);
