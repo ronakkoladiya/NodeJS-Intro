@@ -23,10 +23,11 @@ passport.use(
         {
             clientID: process.env.GOOGLECLIENTID,
             clientSecret: process.env.GOOGLECLIENTSECRET,
-            callbackURL: process.env.GOOGLECALLBACKURL,
+            callbackURL: "/",
         },
         (token, tokenSecret, profile, done) => {
             console.log("Google Profile:", profile);
+            console.log("Google Token:", token);
             User.findOne({email: profile.emails[0].value}, (err, user) => {
                 if (err) {
                     return done(err, false);
