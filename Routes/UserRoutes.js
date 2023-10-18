@@ -30,20 +30,21 @@ passport.use(
             callbackURL: googleCallbackURL,
         },
         (token, tokenSecret, profile, done) => {
+            console.log("Google Profile:", profile);
             User.findOne({email: profile.emails[0].value}, (err, user) => {
                 if (err) {
                     return done(err, false);
                 }
 
                 if (user) {
-                    console.log(user);
+                    console.log("Google Profile:", profile);
                     return done(null, user);
                 } else {
+                    console.log("Creating a new user...", user);
                     const newUser = new User({
                         name: profile.displayName,
                         email: profile.emails[0].value,
                     });
-                    console.log(user);
 
                     newUser.save((err, savedUser) => {
                         if (err) {
@@ -67,7 +68,6 @@ passport.deserializeUser((user, done) => {
 });
 
 app.get("/googleLogIn", passport.authenticate("google", {scope: ["profile", "email"]}));
-
 
 //signUp user
 app.post("/signUp", async (request, response) => {

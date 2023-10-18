@@ -11,11 +11,11 @@ const post_schema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: "Password is Required!"
+        // required: "Password is Required!"
     },
     confirmPassword: {
         type: String,
-        required: "confirmPassword is Required!"
+        // required: "confirmPassword is Required!"
     },
     token: {
         type: String
