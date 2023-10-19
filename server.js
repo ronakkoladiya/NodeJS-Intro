@@ -13,7 +13,7 @@ require("./Mongo");
 require("./Model/Users");
 
 //middleware
-app.use(bodyParser.json()).use(morgan());
+app.use(bodyParser.json()).use(morgan("combined"));
 
 //default route
 app.get("/", (request, response) => {

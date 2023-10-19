@@ -23,12 +23,12 @@ passport.use(
         {
             clientID: process.env.GOOGLECLIENTID,
             clientSecret: process.env.GOOGLECLIENTSECRET,
-            callbackURL: "http://localhost:8000/logIn",
+            callbackURL: "http://localhost:8000/",
         },
-        async (accessToken, refreshToken, profile, done) => {
+        async (token, tokenSecret, profile, done) => {
             try{
                 console.log("Google Profile:", profile);
-                console.log("Google Token:", accessToken);
+                console.log("Google Token:", token);
 
                 const user = await User.findOne({ email: profile.emails[0].value });
 
@@ -38,6 +38,7 @@ passport.use(
                     const newUser = new User({
                         name: profile.displayName,
                         email: profile.emails[0].value,
+                        token: null
                     });
 
                     await newUser.save();
