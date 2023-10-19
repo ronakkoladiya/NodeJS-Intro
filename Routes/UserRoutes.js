@@ -4,63 +4,8 @@ const mongoose = require("mongoose");
 const nodemailer = require('nodemailer');
 const jwt = require("jsonwebtoken");
 const secretKey = "node-js-intro";
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 const User = mongoose.model("users");
-
-app.use(require("express-session")({
-    secret: "Ronak's 1st Node",
-    resave: false,
-    saveUninitialized: true,
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-passport.use(
-    new GoogleStrategy(
-        {
-            clientID: process.env.GOOGLECLIENTID,
-            clientSecret: process.env.GOOGLECLIENTSECRET,
-            callbackURL: "http://localhost:8000/",
-        },
-        async (token, tokenSecret, profile, done) => {
-            try{
-                console.log("Google Profile:", profile);
-                console.log("Google Token:", token);
-
-                const user = await User.findOne({ email: profile.emails[0].value });
-
-                if (user) {
-                    return done(null, user);
-                } else {
-                    const newUser = new User({
-                        name: profile.displayName,
-                        email: profile.emails[0].value,
-                        token: null
-                    });
-
-                    await newUser.save();
-                    return done(null, newUser);
-                }
-            }
-            catch (e) {
-                console.error("Error in Google Strategy:", e);
-            }
-        }
-    )
-);
-
-passport.serializeUser((user, done) => {
-    done(null, user);
-});
-
-passport.deserializeUser((user, done) => {
-    done(null, user);
-});
-
-app.get("/googleLogIn", passport.authenticate("google", {scope: ["profile", "email"]}));
 
 //signUp user
 app.post("/signUp", async (request, response) => {

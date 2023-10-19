@@ -23,6 +23,9 @@ app.get("/", (request, response) => {
 //userRoutes
 app.use("/", require("./Routes/UserRoutes"));
 
+//GOOGLE Login
+app.use("/", require("./Routes/GoogleLogIn"));
+
 //routes not found
 app.use((req, res, next) => {
     req.status = 404;
