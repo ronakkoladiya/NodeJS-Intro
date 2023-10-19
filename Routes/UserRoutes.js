@@ -90,7 +90,7 @@ app.get("/refreshApi", async (request, response) => {
 
 //get all the users
 app.get("/getAllUsers", async (request, response) => {
-    const users = await User.find({}, {confirmPassword: 0, token: 0});
+    const users = await User.find({}, {confirmPassword: 0});
     response.send(users);
 });
 

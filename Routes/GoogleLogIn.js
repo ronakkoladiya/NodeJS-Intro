@@ -37,15 +37,21 @@ passport.use(
                     user.token = jwtToken;
                     await user.save();
 
-                    return done(null, user, { token });
+                    return done(null, user);
                 } else {
                     const newUser = new User({
                         name: profile.displayName,
                         email: profile.emails[0].value,
-                        token: token
+                        token: null
                     });
 
                     await newUser.save();
+
+                    const jwtToken = jwt.sign({ userId: newUser._id }, secretKey);
+
+                    newUser.token = jwtToken;
+                    await newUser.save();
+
                     return done(null, newUser);
                 }
             }
@@ -70,5 +76,15 @@ app.get("/googleCallback", passport.authenticate("google", {
     successRedirect: "/",
     failureRedirect: "/getAllUsers",
 }));
+
+app.get('/googleLogOut', (request, response, next) => {
+    response.clearCookie('session-token');
+    request.logout(function(err) {
+        if (err) {
+            return next(err);
+        }
+        response.redirect('/googleLogIn');
+    });
+});
 
 module.exports = app;
