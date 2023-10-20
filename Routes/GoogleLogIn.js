@@ -77,12 +77,12 @@ app.get("/googleCallback", passport.authenticate("google", {
     failureRedirect: "/getAllUsers",
 }));
 
-app.get('/googleLogOut', (request, response, next) => {
-    response.clearCookie('session-token');
+app.get('/googleLogOut', (request, response) => {
     request.logout(function(err) {
         if (err) {
-            return next(err);
+            console.error('Error during logout:', err);
         }
+        delete request.session;
         response.redirect('/googleLogIn');
     });
 });
