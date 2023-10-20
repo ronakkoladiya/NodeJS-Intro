@@ -72,10 +72,17 @@ passport.deserializeUser((user, done) => {
 
 app.get("/googleLogIn", passport.authenticate("google", {scope: ["profile", "email"]}));
 
-app.get("/googleCallback", passport.authenticate("google", {
-    successRedirect: "/",
-    failureRedirect: "/getAllUsers",
-}));
+app.get("/googleCallback", (req, res, next) => {
+    passport.authenticate("google", (err, user) => {
+        if (err) {
+            return res.status(401).json({ error: "Authentication failed" });
+        }
+
+        if (user && user.token) {
+            res.status(200).json({ token: user.token });
+        }
+    })(req, res, next);
+});
 
 app.get('/googleLogOut', (request, response) => {
     request.logout(function(err) {
