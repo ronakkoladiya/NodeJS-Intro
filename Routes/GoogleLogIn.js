@@ -79,7 +79,7 @@ app.get("/googleCallback", (req, res, next) => {
         }
 
         if (user && user.token) {
-            res.status(200).json({ token: user.token });
+            return res.status(200).json({ token: user.token });
         }
     })(req, res, next);
 });
