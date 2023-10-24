@@ -23,7 +23,7 @@ passport.use(
         {
             clientID: process.env.GOOGLECLIENTID,
             clientSecret: process.env.GOOGLECLIENTSECRET,
-            callbackURL: "https://node-js-intro.vercel.app/googleCallback",
+            callbackURL: "http://localhost:8000/googleCallback",
         },
         async (token, tokenSecret, profile, done) => {
             try{
