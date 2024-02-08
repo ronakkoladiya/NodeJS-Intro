@@ -79,7 +79,10 @@ app.get("/googleCallback", (req, res, next) => {
         }
 
         if (user && user.token) {
-            return res.status(200).json({ token: user.token });
+            // return res.status(200).json({ token: user.token });
+
+            res.cookie('authToken', user.token);
+            return res.redirect('http://localhost:5173/home');
         }
     })(req, res, next);
 });
